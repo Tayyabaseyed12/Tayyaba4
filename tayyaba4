@@ -1,0 +1,66 @@
+import os
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from pygame import mixer
+
+class MusicPlayer:
+	def __init__(self, root):
+    	self.root = root
+    	self.root.title("Music Player")
+    	self.root.geometry("600x400")
+   	 
+    	mixer.init()
+   	 
+    	self.playlist = []
+   	 
+    	# Create UI Elements
+    	self.add_song_btn = tk.Button(self.root, text="Add Songs", command=self.add_songs)
+    	self.add_song_btn.pack(pady=20)
+   	 
+    	self.play_btn = tk.Button(self.root, text="Play", command=self.play_song)
+    	self.play_btn.pack(pady=10)
+   	 
+    	self.pause_btn = tk.Button(self.root, text="Pause", command=self.pause_song)
+    	self.pause_btn.pack(pady=10)
+   	 
+    	self.stop_btn = tk.Button(self.root, text="Stop", command=self.stop_song)
+    	self.stop_btn.pack(pady=10)
+   	 
+    	self.song_listbox = tk.Listbox(self.root, selectmode=tk.SINGLE, width=50)
+    	self.song_listbox.pack(pady=20)
+   	 
+    	self.current_song = None
+    	self.paused = False
+
+	def add_songs(self):
+    	songs = filedialog.askopenfilenames(initialdir='/', title="Select Songs", filetypes=(("mp3 Files", "*.mp3"),))
+    	for song in songs:
+        	self.playlist.append(song)
+        	self.song_listbox.insert(tk.END, os.path.basename(song))
+
+	def play_song(self):
+    	try:
+        	selected_song_index = self.song_listbox.curselection()[0]
+        	self.current_song = self.playlist[selected_song_index]
+        	mixer.music.load(self.current_song)
+        	mixer.music.play()
+    	except IndexError:
+        	messagebox.showerror("Error", "Please select a song from the list")
+
+	def pause_song(self):
+    	if not self.paused:
+        	mixer.music.pause()
+        	self.paused = True
+    	else:
+        	mixer.music.unpause()
+        	self.paused = False
+
+	def stop_song(self):
+    	mixer.music.stop()
+    	self.current_song = None
+
+if __name__ == "__main__":
+	root = tk.Tk()
+	app = MusicPlayer(root)
+	root.mainloop()
+
